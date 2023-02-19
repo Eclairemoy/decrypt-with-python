@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" style="font-family: 'Inter';">
+  <head>
+    <link href='https://fonts.googleapis.com/css?family=Inter' rel='stylesheet'>
+  </head>
+  <body>
+    <form id="encrypt-form">
+        <div class="field">
+            <label for="name" style="color: #6633EE;">Name:</label>
+            <input type="text" id="name" name="name" placeholder="Enter your name" />
+            <button id="encrypt">
+              Encrypt
+            </button>
+            <button id="decrypt">
+              Decrypt
+          </button>
+        </div>
+    </form>
+    <label for="encrypted" style="color: #6633EE;">Encrypted value:</label>
+    <div id="encrypted"></div>
+    <label for="decrypted" style="color: #6633EE;">Decrypted value:</label>
+    <div id="decrypted"></div>
+    <script src="https://js.evervault.com/v2"></script>
+    <script>
+    // Initialises the Evervault SDK
+    const evervault = new Evervault('{{ team_id }}', '{{ app_id }}');
+
+    // encrypts the data when the Encrypt button is clicked
+    document.getElementById("encrypt").addEventListener("click", async (e) => {
+        e.preventDefault();
+        let text = document.getElementById("name").value;
+        const encrypted = await evervault.encrypt(text);
+        document.getElementById("encrypted").innerText = encrypted;
+    });
+
+    // decrypts the data when the Decrypt button is clicked
+    document.getElementById("decrypt").addEventListener("click", async (e) => {
+    e.preventDefault();
+    const encryptedtext = document.getElementById("encrypted").innerText;
+    try {
+        await fetch('{{url}}' + '/decrypt', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({name: encryptedtext})
+        }).then(function(response) {
+          return response.json()
+        }).then(function(data) {
+          document.getElementById("decrypted").innerText = data.name;
+        });
+    } catch (error) {
+        console.log(error);
+    }
+    });
+    </script>
+  </body>
+</html>
